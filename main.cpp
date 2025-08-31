@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
+#include <random>
+
 
 int main() {
     // Define constants
@@ -36,10 +37,11 @@ int main() {
     spriteCloud3.setPosition(sf::Vector2f(0.f, 500.f));
 
     // Game variables
-    // Is the bee currently moving?
     bool beeActive = false;
-    // How fast can the bee fly
     float beeSpeed = 0.f;
+
+    // Create a clock for timing everything
+    sf::Clock clock;
 
     // Start the game loop
     while (window.isOpen()) {
@@ -55,8 +57,31 @@ int main() {
             window.close();
         }
 
-        // Clear everything from the last run frame”
+        // Clear everything from the last run frame
         window.clear();
+
+        // Measure time
+        sf::Time dt = clock.restart();
+
+        // Setup the bee
+        if (!beeActive) {
+            // How fast is the bee
+            srand((int) time(0));
+            beeSpeed = (rand() % 200) + 200;
+            // How high is the bee
+            srand((int) time(0) * 10);
+            float height = (rand() % 500) + 500;
+            spriteBee.setPosition(sf::Vector2f(2000.f, height));
+            beeActive = true;
+        } else {
+            spriteBee.setPosition(sf::Vector2f(spriteBee.getPosition().x - (beeSpeed * dt.asSeconds()),
+                                               spriteBee.getPosition().y));
+            // Has the bee reached the left-hand edge of the screen?
+            if (spriteBee.getPosition().x < -100) {
+                // Set it up ready to be a whole new bee next frame
+                beeActive = false;
+            }
+        }
 
         // Draw our game scene here
         window.draw(spriteBackground);
